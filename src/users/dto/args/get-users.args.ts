@@ -5,5 +5,5 @@ import { IsArray, IsNotEmpty } from 'class-validator';
 export class GetUsersArgs {
   @Field(() => [String])
   @IsArray()
-  userId: string[];
+  userIds: string[];
 }

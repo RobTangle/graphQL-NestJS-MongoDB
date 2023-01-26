@@ -16,28 +16,40 @@ export class UsersResolver {
   //transformar esto a async cuando implemente la database
   @Query(() => User, { name: 'user', nullable: true })
   @UseGuards(GqlAuthGuard)
-  getUser(@CurrentUser() user: User, @Args() getUserArgs: GetUserArgs): User {
+  getUser(
+    @CurrentUser() user: User,
+    @Args() getUserArgs: GetUserArgs,
+  ): Promise<User> {
     console.log(user);
     return this.usersService.getUser(getUserArgs);
   }
 
   @Query(() => [User], { name: 'users', nullable: 'items' })
-  getUsers(@Args() getUsersArgs: GetUsersArgs): User[] {
+  getUsers(@Args() getUsersArgs: GetUsersArgs): Promise<User[]> {
     return this.usersService.getUsers(getUsersArgs);
   }
 
   @Mutation(() => User)
-  createUser(@Args('createUserData') createUserData: CreateUserInput): User {
+  createUser(
+    @Args('createUserData') createUserData: CreateUserInput,
+  ): Promise<User> {
     return this.usersService.createUser(createUserData);
   }
 
   @Mutation(() => User)
-  updateUser(@Args('updateUserData') updateUserData: UpdateUserInput): User {
-    return this.usersService.updateUser(updateUserData);
+  updateUser(
+    @Args('updateUserData') updateUserData: UpdateUserInput,
+  ): Promise<User> {
+    return this.usersService.updateUser(
+      { userId: updateUserData.userId },
+      updateUserData,
+    );
   }
 
   @Mutation(() => User)
-  deleteUser(@Args('deleteUserData') deleteUserData: DeleteUserInput): User {
+  deleteUser(
+    @Args('deleteUserData') deleteUserData: DeleteUserInput,
+  ): Promise<User> {
     return this.usersService.deleteUser(deleteUserData);
   }
 }

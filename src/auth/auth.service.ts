@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/users/models/user';
+import { User } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { JWT_SECRET } from './constants';
 
@@ -11,8 +11,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  validate(email: string, password: string): User | null {
-    const user = this.usersService.getUserByEmail(email);
+  async validate(email: string, password: string): Promise<User> | null {
+    const user = await this.usersService.getUserByEmail(email);
     if (!user) {
       return null;
     }
@@ -31,11 +31,11 @@ export class AuthService {
     return { access_token: this.jwtService.sign(payload) };
   }
 
-  verify(token: string): User {
+  async verify(token: string): Promise<User> {
     const decoded = this.jwtService.verify(token, {
       secret: JWT_SECRET,
     });
-    const user = this.usersService.getUserByEmail(decoded.email);
+    const user = await this.usersService.getUserByEmail(decoded.email);
     return user;
   }
 }

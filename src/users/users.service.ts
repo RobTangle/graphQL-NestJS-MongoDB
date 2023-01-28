@@ -51,8 +51,8 @@ export class UsersService {
     return this.usersRepository.findOne({ email });
   }
 
-  public async getUsers(getUsersArgs: GetUsersArgs): Promise<User[]> {
-    return this.usersRepository.find({});
+  public async getUsers(userIds: GetUsersArgs): Promise<User[]> {
+    return this.usersRepository.findUsers(userIds);
   }
 
   public async deleteUser(deleteUserData: DeleteUserInput): Promise<User> {

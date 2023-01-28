@@ -14,9 +14,13 @@ export class UsersRepository {
     return userFound;
   }
 
-  async find(usersFilterQuery: FilterQuery<User>): Promise<User[]> {
+  async findUsers(usersFilterQuery: FilterQuery<User>): Promise<User[]> {
     return this.userModel
-      .find(usersFilterQuery, {}, { sanitizeFilter: true })
+      .find(
+        { $or: [{ userId: usersFilterQuery }] },
+        {},
+        { sanitizeFilter: true },
+      )
       .exec();
   }
 

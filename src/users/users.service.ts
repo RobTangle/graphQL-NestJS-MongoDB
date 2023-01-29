@@ -1,59 +1,68 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateUserInput } from './dto/input/create-user.input';
-import { User } from './models/user';
+import { User } from './schemas/user.schema';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateUserInput } from './dto/input/update-user.input';
 import { GetUserArgs } from './dto/args/get-user.args';
 import { GetUsersArgs } from './dto/args/get-users.args';
 import { DeleteUserInput } from './dto/input/delete-user.input';
+import { UsersRepository } from './users.repository';
+import { FilterQuery } from 'mongoose';
+// import { User } from './models/user';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    // creo un usuario inicial para testing:
-    {
-      email: 'testdummy@mail.com',
-      password: '123',
-      age: 50,
-      userId: '001',
-    },
-  ];
+  constructor(private readonly usersRepository: UsersRepository) {}
 
-  public createUser(createUserData: CreateUserInput): User {
+  // private users: User[] = [
+  //   // creo un usuario inicial para testing:
+  //   {
+  //     email: 'testdummy@mail.com',
+  //     password: '123',
+  //     age: 50,
+  //     userId: '001',
+  //   },
+  // ];
+
+  public async createUser(createUserData: CreateUserInput): Promise<User> {
     const user: User = {
       userId: uuidv4(),
       ...createUserData,
     };
-    this.users.push(user);
-    return user;
+    const newUser = await this.usersRepository.create(user);
+    return newUser;
   }
 
-  public updateUser(updateUserData: UpdateUserInput): User {
-    const user = this.users.find(
-      (user) => user.userId === updateUserData.userId,
+  public async updateUser(
+    filterQuery: FilterQuery<User>,
+    updateUserData: UpdateUserInput,
+  ): Promise<User> {
+    const user = await this.usersRepository.findOneAndUpdate(
+      filterQuery,
+      updateUserData,
     );
-    Object.assign(user, updateUserData);
     return user;
   }
 
-  public getUser(getUserArgs: GetUserArgs): User {
-    return this.users.find((user) => user.userId === getUserArgs.userId);
+  public async getUser(getUserArgs: GetUserArgs, user: User): Promise<User> {
+    const userFound = await this.usersRepository.findOne({ ...getUserArgs });
+    if (userFound.userId === user.userId) {
+      return userFound;
+    } else throw new ForbiddenException('Not allowed!');
   }
 
-  public getUserByEmail(email: string): User | undefined {
-    return this.users.find((user) => user.email === email);
+  public async getUserByEmail(email: string): Promise<User> | undefined {
+    return this.usersRepository.findOne({ email });
   }
 
-  public getUsers(getUsersArgs: GetUsersArgs): User[] {
-    return getUsersArgs.userIds.map((userId) => this.getUser({ userId }));
+  public async getUsers(userIds: GetUsersArgs): Promise<User[]> {
+    return this.usersRepository.findUsers(userIds);
   }
 
-  public deleteUser(deleteUserData: DeleteUserInput): User {
-    const userIndex = this.users.findIndex(
-      (user) => user.userId === deleteUserData.userId,
+  public async deleteUser(deleteUserData: DeleteUserInput): Promise<User> {
+    const userToDelete = await this.usersRepository.findOneAndDelete(
+      deleteUserData,
     );
-    const user = this.users[userIndex];
-    this.users.splice(userIndex);
-    return user;
+    return userToDelete;
   }
 }

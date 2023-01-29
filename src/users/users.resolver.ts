@@ -50,8 +50,10 @@ export class UsersResolver {
 
   @Mutation(() => User)
   deleteUser(
-    @Args('deleteUserData') deleteUserData: DeleteUserInput,
+    @CurrentUser() user: User,
+    @Args('deleteUserData')
+    deleteUserData: DeleteUserInput,
   ): Promise<User> {
-    return this.usersService.deleteUser(deleteUserData);
+    return this.usersService.deleteUser(deleteUserData, user);
   }
 }

@@ -59,7 +59,11 @@ export class UsersService {
     return this.usersRepository.findUsers(userIds);
   }
 
-  public async deleteUser(deleteUserData: DeleteUserInput): Promise<User> {
+  public async deleteUser(
+    deleteUserData: DeleteUserInput,
+    user: User,
+  ): Promise<User> {
+    // for protecting horizontal authorization, use the "user" const to check the user.userId
     const userToDelete = await this.usersRepository.findOneAndDelete(
       deleteUserData,
     );

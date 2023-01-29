@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateUserInput } from './dto/input/create-user.input';
 import { User } from './schemas/user.schema';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,6 +8,7 @@ import { GetUsersArgs } from './dto/args/get-users.args';
 import { DeleteUserInput } from './dto/input/delete-user.input';
 import { UsersRepository } from './users.repository';
 import { FilterQuery } from 'mongoose';
+// import { User } from './models/user';
 
 @Injectable()
 export class UsersService {
@@ -43,8 +44,11 @@ export class UsersService {
     return user;
   }
 
-  public async getUser(getUserArgs: GetUserArgs): Promise<User> {
-    return this.usersRepository.findOne({ ...getUserArgs });
+  public async getUser(getUserArgs: GetUserArgs, user: User): Promise<User> {
+    const userFound = await this.usersRepository.findOne({ ...getUserArgs });
+    if (userFound.userId === user.userId) {
+      return userFound;
+    } else throw new ForbiddenException('Not allowed!');
   }
 
   public async getUserByEmail(email: string): Promise<User> | undefined {

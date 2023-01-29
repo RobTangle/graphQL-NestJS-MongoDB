@@ -7,7 +7,8 @@ import { GetUsersArgs } from './dto/args/get-users.args';
 import { CreateUserInput } from './dto/input/create-user.input';
 import { DeleteUserInput } from './dto/input/delete-user.input';
 import { UpdateUserInput } from './dto/input/update-user.input';
-import { User } from './models/user';
+import { User } from './schemas/user.schema';
+// import { User } from './models/user';
 import { UsersService } from './users.service';
 
 @Resolver(() => User)
@@ -20,8 +21,7 @@ export class UsersResolver {
     @CurrentUser() user: User,
     @Args() getUserArgs: GetUserArgs,
   ): Promise<User> {
-    console.log(user);
-    return this.usersService.getUser(getUserArgs);
+    return this.usersService.getUser(getUserArgs, user);
   }
 
   @Query(() => [User], { name: 'users', nullable: 'items' })

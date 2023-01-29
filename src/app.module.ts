@@ -5,6 +5,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
+import authConstants from './auth/constants';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     UsersModule,
     AuthModule,
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ load: [authConstants], isGlobal: true }),
     MongooseModule.forRoot(process.env.MONGO_DB_URL),
   ],
   controllers: [],

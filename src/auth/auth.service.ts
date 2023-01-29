@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
-import { JWT_SECRET } from './constants';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
@@ -32,6 +33,8 @@ export class AuthService {
   }
 
   async verify(token: string): Promise<User> {
+    const JWT_SECRET = this.configService.get<string>('JWT_SECRET');
+
     const decoded = this.jwtService.verify(token, {
       secret: JWT_SECRET,
     });
